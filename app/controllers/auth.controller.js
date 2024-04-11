@@ -11,7 +11,7 @@ const { otpModel } = require("../models/otp");
 const { sendSmsData } = require("../../src/core/notification/sms/sendSms");
 
 const response = new ResponseHandler();
-const OTP_EXPIRATION_TIME = 3600*8; // 8 hours in seconds
+const OTP_EXPIRATION_TIME = 300; // 5 minutes in seconds
 
 // @Tags("Auth Controller")
 // @Route("/auth")

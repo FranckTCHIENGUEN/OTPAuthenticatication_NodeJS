@@ -1,5 +1,5 @@
 const { Body, Get, Put, Route, Security, Tags } = require("tsoa");
-const { AUTHORIZATION, My_Controller } = require("./controller");
+const { My_Controller } = require("./controller");
 const { UserModel } = require("../models/user");
 const ResponseHandler  = require("../../src/config/responseHandler");
 const code = require("../../src/config/code");
@@ -28,25 +28,28 @@ class UserController extends My_Controller {
     // @Put("edit")
     // @Security(AUTHORIZATION.TOKEN)
      const edit = async (req, res, next )=> {
-        const body = req.body;
+         let body = req.body;
+
         try {
-            const validate = this.validate(userUpdateSchema, body);
+            const validate = new My_Controller().validate(userUpdateSchema, body);
             if (validate !== true)
-                return response.liteResponse(code.VALIDATION_ERROR, "Validation Error !", validate);
+                return res.send(
+                    response.liteResponse(code.VALIDATION_ERROR, "Validation Error !", validate)
+                ) ;
 
             let userData = body;
-
+            console.log(userData)
             //found user
             const foundUser = await UserModel.findFirst({ where: { email: body.email } });
             if (!foundUser)
-                return response.liteResponse(code.NOT_FOUND, 'User not found, Invalid email!');
+                return res.send(response.liteResponse(code.NOT_FOUND, 'User not found, Invalid email!'));
 
             const userUpdate = await UserModel.update({
                 where: { id: foundUser.id },
                 data: { ...userData }
             });
             if (!userUpdate)
-                return response.liteResponse(code.FAILURE, "An error occurred, on user update. Retry later!", null);
+                return res.send(response.liteResponse(code.FAILURE, "An error occurred, on user update. Retry later!", null));
 
             console.log("edit user Success");
 
@@ -55,9 +58,9 @@ class UserController extends My_Controller {
                 lastName: userUpdate.lastName,
                 firstName: userUpdate.firstName
             };
-            return response.liteResponse(code.SUCCESS, "User update with Success !", { user: user });
+            return res.send(response.liteResponse(code.SUCCESS, "User update with Success !", { user: user }));
         } catch (e) {
-            return response.catchHandler(e);
+            return res.send(response.catchHandler(e));
         }
     }
 // }

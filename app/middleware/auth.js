@@ -1,16 +1,19 @@
 const jwt = require("jsonwebtoken");
 const { TokenModel } = require("../models/token");
-const { Middleware_Error } = require("../../src/config/middlewareError");
+const  Middleware_Error  = require("../../src/config/middlewareError");
 
-const expressAuthentication = async (request, secresurityName, next) => {
+const expressAuthentication = async (req, res, next) => {
     try {
-        const authorization = request.body.authorization || request.query.authorization || request.headers["authorization"];
+        const authorization = req.body.authorization || req.query.authorization || req.headers["authorization"];
 
             const token = await checkAuthorization(authorization);
 
-            return Promise.resolve(token.userId);
-    } catch (e) {
-        return Promise.reject(new Middleware_Error(e.message));
+        req.auth = {
+            userId: token.userId
+        };
+        next();
+    } catch(error) {
+        res.status(401).json({ error:'You are not autorized to perform the action' });
     }
 };
 
