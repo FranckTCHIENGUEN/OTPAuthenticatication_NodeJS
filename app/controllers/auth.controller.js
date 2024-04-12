@@ -23,7 +23,6 @@ const OTP_EXPIRATION_TIME = 300; // 5 minutes in seconds
       console.log(body)
         try {
             const foundUser = await UserModel.findFirst({ where: { email: body.email } });
-            console.log(await UserModel.findMany())
             if (!foundUser)
                 return res
                     .send(response.liteResponse(code.NOT_FOUND, 'Invalid email')) ;
@@ -86,7 +85,7 @@ const OTP_EXPIRATION_TIME = 300; // 5 minutes in seconds
                 data: { use:true }
             });
             if (!otpUpdate)
-                return res.send(response.liteResponse(code.FAILURE, "An error occurred. Retry later!", null)) ;
+                return res.send(response.liteResponse(code.FAILURE, "This OTP  is already used. Retry with another!", null)) ;
 
 
             const jwtToken = await generateToken(foundUser.id, foundUser.email, res);
@@ -122,42 +121,6 @@ const OTP_EXPIRATION_TIME = 300; // 5 minutes in seconds
             return res.send(response.catchHandler(e)) ;
         }
     }
-
-   /* @Post('change_password')
-    @Security(AUTHORIZATION.TOKEN)
-    async changePassword(@Body() body) {
-        try {
-            let validate = this.validate(changePasswordSchema, body);
-
-            if (body.oldPassword == null){
-                validate = this.validate(changForgotePasswordSchema, body);
-            }
-            if (validate !== true)
-                return res.send( response.liteResponse(code.VALIDATION_ERROR, "Validation Error !", validate);
-
-            const foundUser = await UserModel.findFirst({ where: { email: body.email } });
-            if (!foundUser)
-                return res.send( response.liteResponse(code.NOT_FOUND, 'User not found, Invalid email!');
-
-            if (body.oldPassword != null){
-                if (!bcrypt.compareSync(body.oldPassword, foundUser.password))
-                    return res.send( response.liteResponse(code.FAILURE, 'Invalid password!');
-            }
-
-            const updatedUser = await UserModel.update({
-                data: { password: bcrypt.hashSync(body.newPassword, SALT_ROUND) },
-                where: { id: foundUser.id }
-            });
-
-            if (!updatedUser)
-                return res.send( response.liteResponse(code.FAILURE, 'Something went wrong, try Again !', null);
-
-            return res.send( response.liteResponse(code.SUCCESS, "Your password is updated", null);
-        } catch (e) {
-            return res.send( response.catchHandler(e);
-        }
-    }
-*/
 
     // @Post("register")
     const register = async (req, res, next )  =>{
@@ -254,10 +217,9 @@ const OTP_EXPIRATION_TIME = 300; // 5 minutes in seconds
             from: 'Digisoft',
             text: `your otp code is : ${otp}`
         };
-        // await this.sendSms(config);
+        await sendSmsData(config);
         console.log(`OTP sent to ${user.region}${user.phoneNumber}: ${otp}`);
     }
-// }
 
 module.exports = {
     login,

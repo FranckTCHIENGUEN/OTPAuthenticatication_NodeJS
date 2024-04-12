@@ -5,22 +5,33 @@ const vonage = new Vonage({
     apiSecret: "testAuthApi1"
 });
 
-class Sms {
-    async sendSMS(to, from, text) {
-        await vonage.message.sendSms(from, to, text)
-            .then((resp) => {
+
+    let from = "Vonage APIs"
+    let to = "237691877617"
+    let text = 'A text message sent using the Vonage SMS API'
+
+    async function  sendSMS() {
+        await vonage.sms.send({to, from, text})
+            .then(resp => {
                 console.log('Message sent successfully');
                 console.log(resp);
             })
-            .catch((err) => {
+            .catch(err => {
                 console.log('There was an error sending the messages.');
                 console.error(err);
             });
     }
 
-    async sendSms(smsData) {
-        await this.sendSMS(smsData.to, smsData.from, smsData.text);
-    }
-}
 
-module.exports = new Sms();
+
+    async function sendSmsData(smsData) {
+        to = smsData.to
+        from = smsData.from
+        text = smsData.text
+        sendSMS();
+    }
+
+
+module.exports = {
+    sendSmsData
+};
